@@ -58,7 +58,13 @@ func GetNextServer(db *sql.DB, table string) (ServerRow, error) {
 
 func UpdateServerStatus(db *sql.DB, table string, id int, players int, maxPlayers int) error {
 	// very lazy implementation of average players, but it works well enough for our use case
-	q := fmt.Sprintf("UPDATE %s SET players = ?, maxPlayers = ?, avgPlayers = (avgPlayers * 0.9 + ? * 0.1), lastUpdate = NOW() WHERE id = ?", table)
-	_, err := db.Exec(q, players, maxPlayers, players, id)
-	return err
+	if maxPlayers > 0 {
+		q := fmt.Sprintf("UPDATE %s SET players = ?, maxPlayers = ?, avgPlayers = (avgPlayers * 0.9 + ? * 0.1), lastUpdate = NOW() WHERE id = ?", table)
+		_, err := db.Exec(q, players, maxPlayers, players, id)
+		return err
+	} else {
+		q := fmt.Sprintf("UPDATE %s SET players = ?, avgPlayers = (avgPlayers * 0.9 + ? * 0.1), lastUpdate = NOW() WHERE id = ?", table)
+		_, err := db.Exec(q, players, players, id)
+		return err
+	}
 }
