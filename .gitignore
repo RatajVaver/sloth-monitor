@@ -2,3 +2,4 @@
 .env
 *.syso
 *.exe
+sloth-monitor
