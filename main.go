@@ -39,11 +39,11 @@ func main() {
 		players, maxp, err := queryA2SInfo(addr)
 		if err != nil {
 			log.Printf("query error: id=%d addr=%s: %v", s.ID, addr, err)
-			if err := UpdateServerStatus(db, cfg.DBTable, s.ID, 0, 0); err != nil {
+			if err := UpdateServerStatus(db, cfg.DBTable, s.ID, -1, 0, cfg.AvgRatio); err != nil {
 				log.Printf("failed to update: id=%d: %v", s.ID, err)
 			}
 		} else {
-			if err := UpdateServerStatus(db, cfg.DBTable, s.ID, players, maxp); err != nil {
+			if err := UpdateServerStatus(db, cfg.DBTable, s.ID, players, maxp, cfg.AvgRatio); err != nil {
 				log.Printf("failed to update: id=%d: %v", s.ID, err)
 			} else {
 				log.Printf("updated: id=%d players=%d/%d", s.ID, players, maxp)

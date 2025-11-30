@@ -56,15 +56,28 @@ func GetNextServer(db *sql.DB, table string) (ServerRow, error) {
 	return s, nil
 }
 
-func UpdateServerStatus(db *sql.DB, table string, id int, players int, maxPlayers int) error {
+func UpdateServerStatus(db *sql.DB, table string, id int, players int, maxPlayers int, avgRatio float64) error {
 	// very lazy implementation of average players, but it works well enough for our use case
-	if maxPlayers > 0 {
-		q := fmt.Sprintf("UPDATE %s SET players = ?, maxPlayers = ?, avgPlayers = (avgPlayers * 0.9 + ? * 0.1), lastUpdate = NOW() WHERE id = ?", table)
-		_, err := db.Exec(q, players, maxPlayers, players, id)
-		return err
-	} else {
-		q := fmt.Sprintf("UPDATE %s SET players = ?, avgPlayers = (avgPlayers * 0.9 + ? * 0.1), lastUpdate = NOW() WHERE id = ?", table)
-		_, err := db.Exec(q, players, players, id)
+
+	if avgRatio > 0 {
+		if maxPlayers > 0 {
+			q := fmt.Sprintf("UPDATE %s SET players = ?, maxPlayers = ?, avgPlayers = (COALESCE(avgPlayers, ?) * ? + ? * ?), lastUpdate = NOW() WHERE id = ?", table)
+			_, err := db.Exec(q, players, maxPlayers, players, 1-avgRatio, players, avgRatio, id)
+			return err
+		}
+
+		q := fmt.Sprintf("UPDATE %s SET players = ?, avgPlayers = (COALESCE(avgPlayers, ?) * ? + ? * ?), lastUpdate = NOW() WHERE id = ?", table)
+		_, err := db.Exec(q, players, players, 1-avgRatio, players, avgRatio, id)
 		return err
 	}
+
+	if maxPlayers > 0 {
+		q := fmt.Sprintf("UPDATE %s SET players = ?, maxPlayers = ?, lastUpdate = NOW() WHERE id = ?", table)
+		_, err := db.Exec(q, players, maxPlayers, id)
+		return err
+	}
+
+	q := fmt.Sprintf("UPDATE %s SET players = ?, lastUpdate = NOW() WHERE id = ?", table)
+	_, err := db.Exec(q, players, id)
+	return err
 }

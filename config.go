@@ -9,13 +9,14 @@ import (
 )
 
 type Config struct {
-	DBUser  string
-	DBPass  string
-	DBHost  string
-	DBPort  string
-	DBName  string
-	DBTable string
-	Poll    int
+	DBUser   string
+	DBPass   string
+	DBHost   string
+	DBPort   string
+	DBName   string
+	DBTable  string
+	Poll     int
+	AvgRatio float64
 }
 
 func LoadConfig() (*Config, error) {
@@ -43,6 +44,14 @@ func LoadConfig() (*Config, error) {
 
 	if c.DBPort == "" {
 		c.DBPort = "3306"
+	}
+
+	if ar := os.Getenv("AVG_RATIO"); ar != "" {
+		if v, err := strconv.ParseFloat(ar, 64); err == nil {
+			if v >= 0 && v <= 1 {
+				c.AvgRatio = v
+			}
+		}
 	}
 
 	return c, nil

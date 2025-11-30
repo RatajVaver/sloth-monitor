@@ -14,6 +14,7 @@ DB_PORT=3306
 DB_NAME=database
 DB_TABLE=servers
 POLL_SECONDS=30
+AVG_RATIO=0.1
 ```
 
 2. Use `go run .` to run the app.
