@@ -4,7 +4,7 @@ This project is a small **lazy** tool to monitor Source Query ports of servers i
 
 ## Usage
 
-1. Create `.env` file with database details.
+1. Create `.env` file with database details and your configuration.
 
 ```sh
 DB_USER=username
@@ -15,6 +15,8 @@ DB_NAME=database
 DB_TABLE=servers
 POLL_SECONDS=30
 AVG_RATIO=0.1
+QUERY_RETRIES=1
+QUERY_TIMEOUT=3
 ```
 
 2. Use `go run .` to run the app.

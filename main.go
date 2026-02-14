@@ -21,8 +21,9 @@ func main() {
 	defer db.Close()
 
 	poll := time.Duration(cfg.Poll) * time.Second
+	queryTimeout := time.Duration(cfg.QueryTimeout) * time.Second
 
-	log.Printf("monitor: poll=%s, table=%s", poll, cfg.DBTable)
+	log.Printf("monitor: poll=%s, table=%s, retries=%d, timeout=%s", poll, cfg.DBTable, cfg.QueryRetries, queryTimeout)
 
 	for {
 		s, err := GetNextServer(db, cfg.DBTable)
@@ -36,7 +37,7 @@ func main() {
 		addr := net.JoinHostPort(host, strconv.Itoa(s.QueryPort))
 
 		log.Printf("checking server: id=%d addr=%s", s.ID, addr)
-		players, maxp, err := queryA2SInfo(addr)
+		players, maxp, err := queryA2SInfo(addr, cfg.QueryRetries, queryTimeout)
 		if err != nil {
 			log.Printf("query error: id=%d addr=%s: %v", s.ID, addr, err)
 			if err := UpdateServerStatus(db, cfg.DBTable, s.ID, -1, 0, cfg.AvgRatio); err != nil {
