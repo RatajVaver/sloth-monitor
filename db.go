@@ -28,7 +28,7 @@ func OpenDB(cfg *Config) (*sql.DB, error) {
 }
 
 func GetServers(db *sql.DB, table string) ([]ServerRow, error) {
-	q := fmt.Sprintf("SELECT id, ip, queryPort FROM %s WHERE queryPort IS NOT NULL", table)
+	q := fmt.Sprintf("SELECT id, ip, queryPort FROM %s WHERE hidden = 0 AND queryPort IS NOT NULL", table)
 	rows, err := db.Query(q)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func GetServers(db *sql.DB, table string) ([]ServerRow, error) {
 }
 
 func GetNextServer(db *sql.DB, table string) (ServerRow, error) {
-	q := fmt.Sprintf("SELECT id, ip, queryPort FROM %s WHERE queryPort IS NOT NULL ORDER BY lastUpdate LIMIT 1", table)
+	q := fmt.Sprintf("SELECT id, ip, queryPort FROM %s WHERE hidden = 0 AND queryPort IS NOT NULL ORDER BY lastUpdate LIMIT 1", table)
 	var s ServerRow
 	row := db.QueryRow(q)
 	if err := row.Scan(&s.ID, &s.IP, &s.QueryPort); err != nil {
